@@ -1,0 +1,89 @@
+{
+  "name": "front-patient-manager",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc && vite build",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "@chakra-ui/icons": "^1.0.14",
+    "@chakra-ui/react": "^1.6.5",
+    "@emotion/core": "^11.0.0",
+    "@emotion/react": "^11",
+    "@emotion/styled": "^11",
+    "@headlessui/react": "^1.7.7",
+    "@heroicons/react": "^2.0.13",
+    "@orange_digital/chakra-datepicker": "^1.0.3",
+    "@types/react-table": "^7.7.14",
+    "autoprefixer": "^10.4.13",
+    "axios": "^1.2.3",
+    "formik": "^2.2.9",
+    "framer-motion": "^8.4.6",
+    "namor": "^2.0.4",
+    "postcss": "^8.4.21",
+    "react": "^18.2.0",
+    "react-big-calendar": "^1.5.2",
+    "react-data-table-component": "^7.5.3",
+    "react-datepicker": "^4.8.0",
+    "react-dom": "^18.2.0",
+    "react-google-charts": "^4.0.0",
+    "react-icons": "^4.7.1",
+    "react-number-format": "^5.1.3",
+    "react-query": "^3.39.2",
+    "react-router": "^6.6.2",
+    "react-router-dom": "^6.6.2",
+    "react-table": "^7.8.0",
+    "react-toastify": "^9.1.1",
+    "styled-components": "^5.3.6",
+    "tailwindcss": "^3.2.4",
+    "yup": "^0.32.11"
+  },
+  "devDependencies": {
+    "@types/axios": "^0.14.0",
+    "@types/node": "^18.11.18",
+    "@types/react": "^18.0.26",
+    "@types/react-big-calendar": "^0.38.3",
+    "@types/react-datepicker": "^4.8.0",
+    "@types/react-dom": "^18.0.9",
+    "@types/react-icons": "^3.0.0",
+    "@types/react-query": "^1.2.9",
+    "@types/react-router-dom": "^5.3.3",
+    "@types/styled-components": "^5.1.26",
+    "@types/yup": "^0.32.0",
+    "@vitejs/plugin-react": "^3.0.0",
+    "typescript": "^4.9.3",
+    "vite": "^4.0.0"
+  },
+  "eslintConfig": {
+    "extends": [
+      "react-app",
+      "react-app/jest"
+    ],
+    "rules": {
+      "quotes": [
+        "error",
+        "double"
+      ],
+      "jsx-quotes": [
+        "error",
+        "prefer-double"
+      ],
+      "object-curly-spacing": [
+        "error",
+        "always"
+      ],
+      "comma-dangle": [
+        "error",
+        "always-multiline"
+      ],
+      "no-trailing-spaces": "error",
+      "quote-props": [
+        "error",
+        "as-needed"
+      ]
+    }
+  }
+}
