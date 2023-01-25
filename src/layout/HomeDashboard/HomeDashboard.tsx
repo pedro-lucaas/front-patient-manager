@@ -36,9 +36,6 @@ const HomeDashboard: React.FC<{ children: any }> = ({ children }: { children: JS
     <Flex h={"50px"} w={"100%"} bg={"primary.500"} justifyContent={"space-between"}>
       <Box>Logo</Box>
       <HStack spacing={4}>
-        <HeaderMenuItem to={redirects.HOME}>
-          Painel
-        </HeaderMenuItem>
         <HeaderMenuItem to={redirects.SCHEDULE}>
           Agenda
         </HeaderMenuItem>
