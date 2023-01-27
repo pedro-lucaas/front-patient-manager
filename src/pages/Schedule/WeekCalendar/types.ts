@@ -1,6 +1,4 @@
 
-
-
 export type WeekCalendarTable = {
   sunday: Date;
   monday: Date;

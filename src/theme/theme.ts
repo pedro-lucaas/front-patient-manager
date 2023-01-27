@@ -1,6 +1,6 @@
 import { extendTheme } from "@chakra-ui/react";
 
-export const monyxxTheme = extendTheme({
+export const defaultThem = extendTheme({
   config: {
     useSystemColorMode: false,
     initialColorMode: "light",
@@ -22,6 +22,8 @@ export const monyxxTheme = extendTheme({
         _focus: {
           outline: "none",
         },
+        borderRadius: "3px",
+        fontWeight: "400",
       },
     },
     Link: {

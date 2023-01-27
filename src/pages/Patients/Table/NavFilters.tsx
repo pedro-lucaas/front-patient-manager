@@ -38,7 +38,7 @@ export const NavFilter = ({ filters, setFilters }: { filters: ITableFilters, set
         )
       })}
       <Button
-        colorScheme="blue"
+        colorScheme="secondary"
         size="sm"
         className="ml-2"
         onClick={() => navigate(routes.NEWPATIENT)}

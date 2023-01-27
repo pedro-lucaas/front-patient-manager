@@ -1,4 +1,4 @@
-import { Heading, VStack } from '@chakra-ui/react';
+import { VStack } from '@chakra-ui/react';
 import React, { useEffect } from 'react';
 import { IAttribute } from '../../context/ConfigProvider/types';
 import { useConfig } from '../../context/ConfigProvider/useConfig';

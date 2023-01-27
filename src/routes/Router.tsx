@@ -1,9 +1,10 @@
-import { BrowserRouter, Route, Routes, LayoutRouteProps, Outlet } from "react-router-dom";
+import { BrowserRouter, Route, Routes, Outlet } from "react-router-dom";
 import { ConfigProvider } from "../context/ConfigProvider";
 import HomeDashboard from "../layout/HomeDashboard/HomeDashboard";
 import SignDashboard from "../layout/SignDashboard/SignDashboard";
 import EditPatient from "../pages/Patients/EditPatient";
 import ListPatients from "../pages/Patients/ListPatients";
+import MedicalRecord from "../pages/Patients/MedicalRecord";
 import NewPatient from "../pages/Patients/NewPatient";
 import Profile from "../pages/Profile/Profile";
 import Schedule from "../pages/Schedule/Schedule";
@@ -22,7 +23,8 @@ export default function Router() {
                     <Route path={routes.HOME} element={<div>home</div>} />
                     <Route path={routes.PROFILE} element={<Profile />} />
                     <Route path={routes.SCHEDULE} element={<Schedule />} />
-                    <Route path={routes.PATIENTS} element={<ListPatients />} />
+                    <Route path={routes.MEDICAL_RECORDS} element={<ListPatients />} />
+                    <Route path={routes.MEDICAL_RECORD} element={<MedicalRecord />} />
                     <Route path={routes.NEWPATIENT} element={<NewPatient />} />
                     <Route path={routes.PATIENT} element={<EditPatient />} />
                 </Route>

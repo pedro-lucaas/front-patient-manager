@@ -50,7 +50,7 @@ const Profile: React.FC = () => {
           </div>
           <div className="flex justify-between bg-gray-50 px-8 py-2 my-3 border-b">
             <h4 className="text-gray-500">Atributos adicionais</h4>
-            <Button colorScheme={"blue"} ml={"auto"} size={"sm"} onClick={() => setIsCreating(!isCreating)}>Add</Button>
+            <Button colorScheme={"primary"} ml={"auto"} size={"sm"} onClick={() => setIsCreating(!isCreating)}>Add</Button>
           </div>
           <Flex justifyContent="center" alignItems="center" flexDirection="column">
             {attributes?.map(attribute => (

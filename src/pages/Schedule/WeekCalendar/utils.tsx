@@ -2,8 +2,9 @@ import { TableColumn } from "react-data-table-component";
 import { Appointment, } from "../types";
 import { WeekCalendarTable } from "./types";
 import { setHours, setMinutes, setSeconds, isBefore, addMinutes, addDays, format } from "date-fns";
-import { HeadRow, Cell } from "./TableComponents";
 import { days } from "./constants";
+import { Cell } from "./Components/Cell";
+import { HeadRow } from "./Components/HeadRow";
 
 export function makeColumns(appointments: Appointment[], week: WeekCalendarTable): TableColumn<WeekCalendarTable>[] {
   const columns: TableColumn<WeekCalendarTable>[] = [
@@ -27,8 +28,19 @@ export function makeColumns(appointments: Appointment[], week: WeekCalendarTable
       style: {
         margin: "0",
       },
-      grow: 3,
-      minWidth: "6vw",
+      conditionalCellStyles: [
+        {
+          when: (row) => {
+            const date = row[day.key].getDay();
+            return date === 6;
+          },
+          style: {
+            borderRight: "1px solid #c1c1c1",
+          }
+        },
+      ],
+      grow: 9,
+      minWidth: "none",
     });
   }
   return columns;
@@ -37,8 +49,8 @@ export function makeColumns(appointments: Appointment[], week: WeekCalendarTable
 export function makeData(dayDateTime: Date): WeekCalendarTable[] {
   const data = [];
   const step = 60;
-  const start = 8;
-  const end = 18;
+  const start = 0;
+  const end = 24;
   const startDateTime = addDays(setHours(setMinutes(setSeconds(dayDateTime, 0), 0), start), - dayDateTime.getDay());
   const endDateTime = setHours(startDateTime, end);
   let iterator = startDateTime;

@@ -25,3 +25,20 @@ export async function updatePatientFn(patient: PatientFormType) {
   const res = await Api.patch<Patient>(apiEndpoints.PATIENT.replace(':id', patient.id), { ...patient, id: undefined })
   return res.data;
 }
+
+export async function listPatientAppointmentsFn({ id, page }: { id: string, page: number }) {
+  if (!id) return undefined;
+  const res = await Api.get<Patient | undefined>(apiEndpoints.PATIENT.replace(':id', id) + apiEndpoints.APPOINTMENTS, { params: { page, limit: 3 } })
+  return res.data;
+}
+
+export async function startAppointmentFn({ id }: { id: string }) {
+  if (!id) return undefined;
+  const res = await Api.put<Patient | undefined>(apiEndpoints.START_APPOINTMENT.replace(':id', id))
+  return res.data;
+}
+export async function finishAppointmentFn({ id }: { id: string }) {
+  if (!id) return undefined;
+  const res = await Api.put<Patient | undefined>(apiEndpoints.FINISH_APPOINTMENT.replace(':id', id))
+  return res.data;
+}

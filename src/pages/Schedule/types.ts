@@ -1,17 +1,18 @@
 export type AppointmentFile = {
-  id: number;
+  id: string;
   fileName: string;
   fileUrl: string;
 }
 
 export type AppointmentRaw = {
-  id: number;
+  id: string;
   userId: number;
   patient: {
-    id: number;
+    id: string;
     name: string;
     sex: string;
     phone: string;
+    birthDate: string;
   };
   initDate: string;
   endDate: string;
@@ -26,17 +27,18 @@ export type AppointmentRaw = {
   updatedAt: string;
 }
 export type Appointment = {
-  id: number;
+  id: string;
   userId: number;
   patient: {
-    id: number;
+    id: string;
     name: string;
     sex: string;
     phone: string;
+    birthDate: Date;
   };
   initDate: Date;
   endDate: Date;
-  status: string;
+  status: AppointmentStatus;
   procedure: string;
   price: number;
   paid: boolean;
@@ -48,9 +50,28 @@ export type Appointment = {
 }
 
 export type AppointmentBody = {
+  appointmentId?: string;
   patientId: string;
   initDate: string;
   endDate: string;
   procedure: string;
   price: number;
 }
+export type UpdateAppointmentBody = {
+  appointmentId: string;
+  patientId?: string;
+  initDate?: string;
+  endDate?: string;
+  procedure?: string;
+  price?: number;
+  paid?: boolean;
+}
+
+export enum AppointmentStatusEnum {
+  scheduled = 'scheduled',
+  started = 'started',
+  finished = 'finished',
+  canceled = 'canceled',
+}
+
+export type AppointmentStatus = keyof typeof AppointmentStatusEnum;

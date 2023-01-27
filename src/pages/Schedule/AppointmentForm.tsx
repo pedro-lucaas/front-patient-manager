@@ -1,33 +1,25 @@
-import { Formik, Form, Field, FormikHelpers } from 'formik';
-import { FormControl, FormLabel, Input, FormErrorMessage, Button, FormControlProps, InputProps, HStack, Box, Spinner } from '@chakra-ui/react';
+import { useFormik } from 'formik';
+import { FormControl, FormLabel, Input, FormErrorMessage, Button, FormControlProps, Text, HStack, Box, Spinner, Radio, RadioGroup } from '@chakra-ui/react';
 import { useNavigate } from 'react-router-dom';
 import redirects from '../../routes/routes';
-import { APPOINTMENT_QUERY_KEY, createAppointment } from './service';
+import { APPOINTMENT_QUERY_KEY, createAppointmentFn, updateAppointmentFn } from './service';
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import { toast } from 'react-toastify';
 import { NumericFormat, PatternFormat } from 'react-number-format'
-import { useConfig } from '../../context/ConfigProvider/useConfig';
-import { useQueryClient, useQuery } from 'react-query';
-import { isBefore, setHours, setMinutes } from 'date-fns'
+import { useQueryClient, useQueries } from 'react-query';
+import { isBefore, setHours, setMinutes, format, setSeconds } from 'date-fns'
 import { useState } from 'react';
-import { listPatientsFn, PATIENT_QUERY_KEY } from '../Patients/service';
-import { Pagination } from '../../helpers/Pagination';
+import { findPatientFn, listPatientsFn, PATIENT_QUERY_KEY } from '../Patients/service';
 import { Patient } from '../Patients/types';
 
-export const formControlProps: FormControlProps = {
+export const formControlGroupProps: FormControlProps = {
   display: "flex",
   mb: "40px",
 };
-export const inputProps: InputProps = {
-  bgColor: "gray.300",
-  color: "gray.900",
-  _focus: { outline: 0 },
-  _hover: { outline: 0, boxShadow: "lg" },
-  fontSize: ["small", "sm", "md"],
-};
 
 export type AppointmentFormType = {
+  appointmentId?: string;
   patientId: string;
   date: Date | string;
   initTime: string;
@@ -38,15 +30,18 @@ export type AppointmentFormType = {
 }
 
 export type AppointmentFormProps = {
-  values?: AppointmentFormType
+  values?: AppointmentFormType,
+  onClose: () => void;
 }
 
-const AppointmentForm = ({ values }: AppointmentFormProps) => {
+const AppointmentForm = ({ values, onClose }: AppointmentFormProps) => {
+  const [search, setSearch] = useState<string>('')
   const navigate = useNavigate()
   const queryClient = useQueryClient()
 
   const initialValues = {
-    patientId: values?.patientId || "",
+    appointmentId: values?.appointmentId || '',
+    patientId: values?.patientId || '',
     date: values?.date && new Date(values?.date) || '',
     initTime: values?.initTime || '',
     endTime: values?.endTime || '',
@@ -55,25 +50,44 @@ const AppointmentForm = ({ values }: AppointmentFormProps) => {
     priceFloat: values?.price || 0,
   }
 
-  const [search, setSearch] = useState<string>('')
-  const {
-    data,
-    isLoading,
-  } = useQuery<Pagination<any>, Error>([PATIENT_QUERY_KEY, search], () => listPatientsFn({ search }));
-  const onSubmit = async (values: typeof initialValues, actions: FormikHelpers<typeof initialValues>) => {
+  const [{ data: patients, isLoading: isLoadingPatients }, { data: patient }] = useQueries([
+    {
+      queryKey: [PATIENT_QUERY_KEY, search],
+      queryFn: () => listPatientsFn({ search }),
+      enabled: search.length > 2 && initialValues.patientId === '',
+    },
+    {
+      queryKey: [PATIENT_QUERY_KEY, initialValues.patientId],
+      queryFn: () => findPatientFn({ id: initialValues.patientId }),
+      enabled: initialValues.patientId !== '',
+    }
+  ])
+
+  const onSubmit = async (values: typeof initialValues) => {
     try {
-      await createAppointment({
-        patientId: values.patientId,
-        procedure: values.procedure,
-        price: values.priceFloat,
-        initDate: setHours(setMinutes(new Date(values.date), parseInt(values.initTime.split(":")[1])), parseInt(values.initTime.split(":")[0])).toISOString(),
-        endDate: setHours(setMinutes(new Date(values.date), parseInt(values.endTime.split(":")[1])), parseInt(values.endTime.split(":")[0])).toISOString(),
-      })
+      if (initialValues.patientId) {
+        await updateAppointmentFn({
+          appointmentId: values.appointmentId,
+          procedure: values.procedure,
+          patientId: values.patientId,
+          price: values.priceFloat,
+          initDate: setSeconds(setHours(setMinutes(new Date(values.date), parseInt(values.initTime.split(":")[1])), parseInt(values.initTime.split(":")[0])), 1).toISOString(),
+          endDate: setSeconds(setHours(setMinutes(new Date(values.date), parseInt(values.endTime.split(":")[1])), parseInt(values.endTime.split(":")[0])), 0).toISOString(),
+        })
+      } else {
+        await createAppointmentFn({
+          patientId: values.patientId,
+          procedure: values.procedure,
+          price: values.priceFloat,
+          initDate: setSeconds(setHours(setMinutes(new Date(values.date), parseInt(values.initTime.split(":")[1])), parseInt(values.initTime.split(":")[0])), 1).toISOString(),
+          endDate: setSeconds(setHours(setMinutes(new Date(values.date), parseInt(values.endTime.split(":")[1])), parseInt(values.endTime.split(":")[0])), 0).toISOString(),
+        })
+      }
       navigate(redirects.SCHEDULE)
       toast.success('Agendamento salvo com sucesso!')
+      onClose();
     } catch (e: any) {
-      console.error(e)
-      toast.error(e.message)
+      toast.error(e.response.data.message)
     }
     queryClient.invalidateQueries(APPOINTMENT_QUERY_KEY)
   }
@@ -85,160 +99,132 @@ const AppointmentForm = ({ values }: AppointmentFormProps) => {
     return hours >= 0 && hours <= 23 && minutes >= 0 && minutes <= 59;
   }
 
+  const formik = useFormik({
+    initialValues,
+    onSubmit,
+    initialErrors: {},
+    validate: (values) => {
+      const errors: any = {};
+      if (!values.patientId) {
+        errors.patientId = 'Campo obrigatório';
+      }
+      const initTime = values.initTime.split(":")
+      const initDate = setHours(setMinutes(new Date(values.date), parseInt(initTime[1])), parseInt(initTime[0]))
+      if (isBefore(initDate, new Date())) {
+        errors.date = 'Data não pode ser menor que a data atual';
+      }
+      const endTime = values.endTime.split(":")
+      const endDate = setHours(setMinutes(new Date(values.date), parseInt(endTime[1])), parseInt(endTime[0]))
+      if (isBefore(endDate, initDate)) {
+        errors.date = 'Data final não pode ser menor que a data inicial';
+      }
+      return errors;
+    },
+  });
+
+
   return (
-    <Formik
-      initialValues={initialValues}
-      onSubmit={onSubmit}
-      initialErrors={{}}
-      validate={(values) => {
-        const errors: any = {};
-        if (!values.patientId) {
-          errors.patientId = 'Campo obrigatório';
-        }
-        if (isBefore(new Date(values?.date), new Date())) {
-          errors.date = 'Data inválida';
-        }
-        return errors;
-      }}
-    >
-      {(props) => (
-        <Form style={{ textAlign: "left", display: "contents", justifyContent: "center", alignItems: "center" }}>
-          <Field name="patientId">
-            {({ field, form }: any) => (
-              <FormControl {...formControlProps} position={"relative"} flexDir="column" placeholder="patientId" isInvalid={form.errors.patientId && form.touched.patientId} {...formControlProps}>
-                <FormLabel
-                  htmlFor="patientId"
-                  fontSize={["md", "16px"]}
-                >
-                  Nome
-                </FormLabel>
-                <Input {...inputProps} {...field} type="text" id="patientId" value={search} onChange={(e) => {
-                  form.setFieldValue('patientId', '')
-                  setSearch(e.target.value)
-                }} />
-                {search.length > 2 && !field.value && (
-                  <Box paddingY={"10px"} overflowY={"scroll"} zIndex={1} position="absolute" top="0" right="0" bottom="0" left="0" bg="gray.200" height={"300%"} transform={"translateY(34%)"} shadow={"md"}>
-                    {isLoading && <Spinner />}
-                    {data && data.items.map((item: Patient) => (
-                      <Box
-                        key={item.id}
-                        _hover={{ bg: "gray.300" }}
-                        cursor={"pointer"}
-                        paddingX={"10px"}
-                        paddingY={"5px"}
-                        onClick={() => {
-                          form.setFieldValue('patientId', item.id)
-                          setSearch(item.name)
-                        }}>
-                        {item.name}
-                      </Box>
-                    ))}
-                  </Box>
-                )}
-                {search.length <= 2 && (<FormErrorMessage>{form.errors.patientId}</FormErrorMessage>)}
 
-              </FormControl>
-            )}
-          </Field>
-          <HStack {...formControlProps}>
-            <Field name="date">
-              {({ field, form }: any) => (
-                <FormControl isInvalid={form.errors.date && form.touched.date}>
-                  <DatePicker
-                    id="date"
-                    name="date"
-                    selected={field.value ? field.value : null}
-                    onChange={(date: Date) => form.setFieldValue('date', date)}
-                    dateFormat="dd/MM/yyyy"
-                    placeholderText="Data Inicial"
-                    customInput={
-                      <Input
-                        {...inputProps}
-                        {...field}
-                      />
-                    }
-                  />
-                  <FormErrorMessage>{form.errors.date}</FormErrorMessage>
-                </FormControl>
-              )}
-            </Field>
-            <Field name="initTime">
-              {({ field, form }: any) => (
-                <FormControl isInvalid={form.errors.initTime && form.touched.initTime}>
-                  <PatternFormat {...inputProps} {...field}
-                    format="##:##"
-                    customInput={Input}
-                    isAllowed={isAlloweded}
-                  />
-                  <FormErrorMessage>{form.errors.initTime}</FormErrorMessage>
-                </FormControl>
-              )}
-            </Field>
-            <Field name="endTime">
-              {({ field, form }: any) => (
-                <FormControl isInvalid={form.errors.endTime && form.touched.endTime}>
-                  <PatternFormat {...inputProps} {...field}
-                    format="##:##"
-                    customInput={Input}
-                    isAllowed={isAlloweded}
-                  />
-                  <FormErrorMessage>{form.errors.endTime}</FormErrorMessage>
-                </FormControl>
-              )}
-            </Field>
-          </HStack>
-          <Field name="price">
-            {({ field, form }: any) => (
-              <FormControl isInvalid={form.errors.price && form.touched.price}>
-                <FormLabel
-                  htmlFor="price"
-                  fontSize={["md", "16px"]}
-                >
-                  Valor
-                </FormLabel>
-                <NumericFormat {...inputProps} {...field}
-                  prefix="R$ "
-                  decimalSeparator=','
-                  decimalScale={2}
-                  id="price"
-                  allowLeadingZeros
-                  thousandSeparator="."
-                  inputMode="numeric"
-                  customInput={Input}
-                  onValueChange={(values) => {
-                    const { value } = values;
-                    form.setFieldValue('priceFloat', value)
-                  }}
-                />
-                <FormErrorMessage>{form.errors.price}</FormErrorMessage>
-              </FormControl>
-            )}
-          </Field>
-          <FormControl {...formControlProps}>
-            <FormLabel>
-              <Field type="radio" name="procedure" value="consulta" />
-              Consulta
-            </FormLabel>
-            <FormLabel>
-              <Field type="radio" name="procedure" value="retorno" />
-              Retorno
-            </FormLabel>
-          </FormControl>
+    <form onSubmit={formik.handleSubmit} style={{ textAlign: "left", display: "contents", justifyContent: "center", alignItems: "center" }}>
+      <HStack {...formControlGroupProps}>
 
-          <Button
-            type="submit"
-            colorScheme="telegram"
-            mt={4}
-            isLoading={props.isSubmitting}
-            disabled={props.isSubmitting || !props.isValid}
-            loadingText="Sign in..."
+        <FormControl position={"relative"} flexDir="column" isInvalid={!!formik.errors.patientId && !!formik.touched.patientId}>
+          <FormLabel
+            htmlFor="patientId"
+            fontSize={["md", "16px"]}
           >
-            Salvar
-          </Button>
+            Paciente
+          </FormLabel>
+          <Input name="patientId" type="text" id="patientId" value={patient ? patient.name : search} disabled={!!patient} onChange={(e) => {
+            formik.setFieldValue('patientId', '')
+            setSearch(e.target.value)
+          }} />
+          {patients && !formik.values.patientId && (
+            <Box paddingY={"10px"} overflowY={"scroll"} zIndex={1} position="absolute" top="0" right="0" bottom="0" left="0" bg="gray.200" height={"300%"} transform={"translateY(34%)"} shadow={"md"}>
+              {isLoadingPatients && <Spinner />}
+              {patients && patients.items.map((item: Patient) => (
+                <Box
+                  key={item.id}
+                  _hover={{ bg: "gray.300" }}
+                  cursor={"pointer"}
+                  paddingX={"10px"}
+                  paddingY={"5px"}
+                  onClick={() => {
+                    formik.setFieldValue('patientId', item.id)
+                    setSearch(item.name)
+                  }}>
+                  {item.name}
+                </Box>
+              ))}
+            </Box>
+          )}
+          {search.length <= 2 && (<FormErrorMessage>{formik.errors.patientId}</FormErrorMessage>)}
+        </FormControl>
+        <Text color={"red"} fontSize={"sm"}>{formik.errors.date}</Text>
+      </HStack>
+      <HStack {...formControlGroupProps}>
+        <FormControl isInvalid={!!formik.errors.date}>
+          <DatePicker
+            id="date"
+            name="date"
+            value={formik.values.date ? format(new Date(formik.values.date), 'dd/MM/yyyy') : ""}
+            onChange={(date: Date) => formik.setFieldValue('date', date)}
+            dateFormat="dd/MM/yyyy"
+            placeholderText="Data Inicial"
+            customInput={<Input />}
+          />
+        </FormControl>
+        <FormControl isInvalid={!!formik.errors.date}>
+          <Input name="initTime" type="text" id="initTime" as={PatternFormat} isAllowed={isAlloweded} format="##:##" onChange={formik.handleChange} value={formik.values.initTime} />
+        </FormControl>
+        <FormControl isInvalid={!!formik.errors.date}>
+          <Input name="endTime" type="text" id="initTime" as={PatternFormat} isAllowed={isAlloweded} format="##:##" onChange={formik.handleChange} value={formik.values.endTime} />
+        </FormControl>
+      </HStack>
+      <HStack {...formControlGroupProps}>
 
-        </Form>
-      )}
-    </Formik >
+        <FormControl isInvalid={!!formik.errors.price && !!formik.touched.price}>
+          <FormLabel
+            htmlFor="price"
+            fontSize={["md", "16px"]}
+          >
+            Valor
+          </FormLabel>
+          <Input name="price" type="text" id="price" as={NumericFormat} isAllowed={isAlloweded} prefix="R$ "
+            decimalSeparator=','
+            decimalScale={2}
+            allowLeadingZeros
+            thousandSeparator="."
+            inputMode="numeric"
+            onChange={formik.handleChange}
+            onValueChange={(values: any) => {
+              const { floatValue } = values;
+              formik.setFieldValue('priceFloat', floatValue)
+            }} value={formik.values.price} />
+          <FormErrorMessage>{formik.errors.price}</FormErrorMessage>
+        </FormControl>
+
+      </HStack>
+      <HStack {...formControlGroupProps}>
+        <RadioGroup id="procedure" name="procedure" value={formik.values.procedure}
+          onChange={(value) => formik.setFieldValue("procedure", value)} >
+          <Radio value="consulta">Consulta</Radio>
+          <Radio value="retorno">Retorno</Radio>
+        </RadioGroup>
+      </HStack>
+
+      <Button
+        type="submit"
+        colorScheme="telegram"
+        mt={4}
+        isLoading={formik.isSubmitting}
+        disabled={formik.isSubmitting || !formik.isValid}
+        loadingText="Sign in..."
+      >
+        Salvar
+      </Button>
+
+    </form>
   );
 
 }

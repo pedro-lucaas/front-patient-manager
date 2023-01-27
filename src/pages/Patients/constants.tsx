@@ -1,8 +1,7 @@
 import { TableColumn } from "react-data-table-component";
 import { Patient } from "./types";
 import { differenceInSeconds } from "date-fns";
-import { useState } from "react";
-import { Box, Flex } from "@chakra-ui/react";
+import { Box } from "@chakra-ui/react";
 import { useNavigate } from "react-router";
 
 function difference(dateLeft: Date, dateRight: Date) {
@@ -53,14 +52,16 @@ export const columns: TableColumn<Patient>[] = [
   {
     name: 'Última atualização',
     selector: (row) => difference(new Date(), new Date(row.updatedAt)),
+    minWidth: "50px",
+    grow: .5,
   },
   {
     name: 'Nome',
-    selector: (row) => row.name,
+    cell: (row) => <Name name={row.name} id={row.id} />,
   },
   {
     name: 'Email',
-    selector: (row) => row.email,
+    selector: (row) => row.email ?? "",
   },
   {
     name: 'Telefone',
@@ -77,21 +78,21 @@ export const columns: TableColumn<Patient>[] = [
   {
     name: 'Criado em',
     selector: (row) => new Date(row.createdAt).toLocaleDateString(),
-  },
-  {
-    name: '',
-    cell: (row) => <EditAction row={row} />,
-  },
+  }
 ];
 
-const EditAction = ({ row, onRowUpdate }: any) => {
+const Name = ({ name, id }: { name: string, id: string }) => {
   const navigate = useNavigate();
   return (
     <Box
+      color={"blue.500"}
       cursor={"pointer"}
-      onClick={() => navigate(`/patients/${row.id}`)}
+      onClick={() => navigate(`/prontuarios/${id}`)}
+      _hover={{
+        textDecoration: "underline",
+      }}
     >
-      mais...
+      {name}
     </Box>
   );
 };

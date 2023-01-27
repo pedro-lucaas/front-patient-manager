@@ -1,10 +1,23 @@
 export type Patient = {
   id: string;
   name: string;
-  email: string;
+  cpf: string;
+  caregiver?: string;
+  email?: string;
   phone: string;
-  birthDate: string;
+  phone2?: string;
   sex: string;
+  civilStatus?: string;
+  birthDate: string;
+  schooling?: string;
+  addressCep?: string;
+  address?: string;
+  number?: string;
+  complement?: string;
+  district?: string;
+  city?: string;
+  state?: string;
+  country?: string;
   comments: string;
   createdAt: string;
   updatedAt: string;
@@ -14,10 +27,23 @@ export type Patient = {
 export type PatientFormType = {
   id?: string;
   name: string;
-  email: string;
+  cpf: string;
+  caregiver?: string;
+  email?: string;
   phone: string;
-  birthDate: Date | string;
+  phone2?: string;
   sex: string;
+  civilStatus?: string;
+  birthDate: Date | string;
+  schooling?: string;
+  addressCep?: string;
+  address?: string;
+  number?: string;
+  complement?: string;
+  district?: string;
+  city?: string;
+  state?: string;
+  country?: string;
   comments: string;
   [key: string]: any;
 }

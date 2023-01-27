@@ -1,4 +1,4 @@
-import { Box, Button, Flex, Grid, HStack, Icon, IconButton, Menu, MenuButton, MenuItem, MenuList, Popover, PopoverArrow, PopoverBody, PopoverCloseButton, PopoverContent, PopoverHeader, PopoverTrigger, Text } from '@chakra-ui/react';
+import { Box, Button, Flex, HStack, Icon, Menu, MenuButton, MenuItem, MenuList } from '@chakra-ui/react';
 import React from 'react';
 import { Navigate, useLocation, useNavigate } from 'react-router';
 import { useAuth } from '../../context/AuthProvider/useAuth';
@@ -39,8 +39,8 @@ const HomeDashboard: React.FC<{ children: any }> = ({ children }: { children: JS
         <HeaderMenuItem to={redirects.SCHEDULE}>
           Agenda
         </HeaderMenuItem>
-        <HeaderMenuItem to={redirects.PATIENTS}>
-          Pacientes
+        <HeaderMenuItem to={redirects.MEDICAL_RECORDS}>
+          Prontuários
         </HeaderMenuItem>
       </HStack>
       <Flex gap={4}>
@@ -55,7 +55,7 @@ const HomeDashboard: React.FC<{ children: any }> = ({ children }: { children: JS
         </Menu>
         <Menu>
           <MenuButton>
-            <Icon as={HiUserCircle} h={"40px"} w={"auto"} color={"blue.900"} />
+            <Icon as={HiUserCircle} h={"40px"} w={"auto"} color={"primary.900"} />
           </MenuButton>
           <MenuList>
             <MenuItem onClick={() => navigate(redirects.PROFILE)}>Perfil</MenuItem>

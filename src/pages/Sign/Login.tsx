@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react';
-import { Formik, Form, Field, FormikHelpers } from 'formik';
+import { Formik, Form, Field } from 'formik';
 import { useAuth } from '../../context/AuthProvider/useAuth';
 import { FormControl, FormLabel, Input, FormErrorMessage, InputGroup, InputRightElement, Button, FormControlProps, InputProps, Text, VStack } from '@chakra-ui/react';
 import { useNavigate } from 'react-router-dom';
@@ -32,7 +32,7 @@ const Login = () => {
     localStorage.clear()
   }, [])
 
-  const onSubmit = async ({ email, password }: typeof initialValues, actions: FormikHelpers<typeof initialValues>) => {
+  const onSubmit = async ({ email, password }: typeof initialValues) => {
     await login(email, password)
     navigate(redirects.HOME)
   }
@@ -88,7 +88,7 @@ const Login = () => {
               size="sm"
               width={"45%"}
               borderRadius="50"
-              bgColor="blue.500"
+              bgColor="secondary.500"
               isLoading={props.isSubmitting}
               loadingText="Sign in..."
               type="submit"
