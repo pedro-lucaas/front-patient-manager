@@ -13,7 +13,7 @@ switch (location.host) {
     break;
   case "geriatramarinalobo.com.br":
   case "www.geriatramarinalobo.com.br":
-    API_HOST = "https://http://api.geriatramarinalobo.com.br";
+    API_HOST = "https://api.geriatramarinalobo.com.br";
     break;
 }
 
