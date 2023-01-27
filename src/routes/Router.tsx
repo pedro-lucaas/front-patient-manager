@@ -1,4 +1,4 @@
-import { BrowserRouter, Route, Routes, Outlet } from "react-router-dom";
+import { BrowserRouter, Route, Routes, Outlet, Navigate } from "react-router-dom";
 import { ConfigProvider } from "../context/ConfigProvider";
 import HomeDashboard from "../layout/HomeDashboard/HomeDashboard";
 import SignDashboard from "../layout/SignDashboard/SignDashboard";
@@ -28,6 +28,7 @@ export default function Router() {
                     <Route path={routes.NEWPATIENT} element={<NewPatient />} />
                     <Route path={routes.PATIENT} element={<EditPatient />} />
                 </Route>
+                <Route path={"*"} element={<Navigate to={routes.SCHEDULE} />} />
                 <Route path="/" element={<SignDashboard children={<Outlet />} />}>
                     <Route path={routes.LOGIN} element={<Login />} />
                 </Route>

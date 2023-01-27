@@ -48,7 +48,6 @@ const MedicalRecord: React.FC = () => {
   });
 
   useEffect(() => {
-    console.log("a");
     if (!startedAppointments || !startedAppointments.items[0]) return
     const updateDuration = () => {
       setDuration(differenceInSeconds(new Date(), new Date(startedAppointments.items[0].initDate)));

@@ -5,6 +5,7 @@ import { setHours, setMinutes, setSeconds, isBefore, addMinutes, addDays, format
 import { days } from "./constants";
 import { Cell } from "./Components/Cell";
 import { HeadRow } from "./Components/HeadRow";
+import { useConfig } from "../../../context/ConfigProvider/useConfig";
 
 export function makeColumns(appointments: Appointment[], week: WeekCalendarTable): TableColumn<WeekCalendarTable>[] {
   const columns: TableColumn<WeekCalendarTable>[] = [
@@ -47,10 +48,11 @@ export function makeColumns(appointments: Appointment[], week: WeekCalendarTable
 }
 
 export function makeData(dayDateTime: Date): WeekCalendarTable[] {
+  const { workingTime } = useConfig()
   const data = [];
   const step = 60;
-  const start = 0;
-  const end = 24;
+  const start = workingTime.start;
+  const end = workingTime.end;
   const startDateTime = addDays(setHours(setMinutes(setSeconds(dayDateTime, 0), 0), start), - dayDateTime.getDay());
   const endDateTime = setHours(startDateTime, end);
   let iterator = startDateTime;

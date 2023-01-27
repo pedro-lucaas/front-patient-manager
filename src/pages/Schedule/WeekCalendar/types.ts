@@ -1,17 +1,12 @@
 
+export type DayOfWeek = "sunday" | "monday" | "tuesday" | "wednesday" | "thursday" | "friday" | "saturday";
+
 export type WeekCalendarTable = {
-  sunday: Date;
-  monday: Date;
-  tuesday: Date;
-  wednesday: Date;
-  thursday: Date;
-  friday: Date;
-  saturday: Date;
+  [key in DayOfWeek]: Date;
 };
 
-type WeekCalendarTableKeys = PropertyKey & keyof WeekCalendarTable;
 
 export type day = {
   name: string;
-  key: WeekCalendarTableKeys
+  key: DayOfWeek
 };

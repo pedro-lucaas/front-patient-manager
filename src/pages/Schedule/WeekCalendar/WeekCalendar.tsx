@@ -1,5 +1,4 @@
 import { useState } from "react";
-
 import { Box, Flex, Icon, Spinner } from '@chakra-ui/react';
 import { useQuery } from 'react-query';
 import DataTable, { createTheme } from "react-data-table-component";
@@ -25,7 +24,7 @@ const WeekCalendar = () => {
   const data = makeData(day)
   const interval = { initDate: data[0].sunday.toISOString(), endDate: data[data.length - 1].saturday.toISOString() }
 
-  const { data: appointmentsRaw, isLoading } = useQuery<Pagination<AppointmentRaw>, Error>([APPOINTMENT_QUERY_KEY],
+  const { data: appointmentsRaw, isLoading } = useQuery<Pagination<AppointmentRaw>, Error>([APPOINTMENT_QUERY_KEY, interval],
     () => listAppointments(interval));
 
   const appointments = appointmentsRaw?.items.map((appointment) => {
@@ -69,13 +68,27 @@ const WeekCalendar = () => {
             <Icon as={IoMdArrowDropright} boxSize={"15px"} mb={"1px"} />
           </button>
         </Flex>
-        <Flex w={"full"} maxW={"980px"}>
+        <Flex w={"full"} maxW={"980px"} position="relative">
+          {isLoading &&
+            <Flex
+              zIndex={30}
+              position={"absolute"}
+              top={0}
+              left={0}
+              w={"full"}
+              h={"full"}
+              maxH={"80vh"}
+              justifyContent={"center"}
+              alignItems={"center"}
+              bg={"#cccccc66"}
+            >
+              <Spinner />
+            </Flex>
+          }
           <DataTable
             theme="weekCalendar"
             columns={columns}
             data={data}
-            progressPending={isLoading}
-            progressComponent={<Spinner />}
             customStyles={{
               cells: {
                 style: {

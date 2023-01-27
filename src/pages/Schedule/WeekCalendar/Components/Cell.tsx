@@ -1,7 +1,7 @@
-import { Box, Button, Divider, Modal, ModalBody, ModalCloseButton, ModalContent, ModalHeader, ModalOverlay, useDisclosure } from '@chakra-ui/react';
+import { Box, Button, Divider, Modal, ModalBody, ModalCloseButton, ModalContent, ModalHeader, ModalOverlay, useDisclosure, Text } from '@chakra-ui/react';
 import { Appointment } from '../../types';
 import {
-  format, setMinutes, setSeconds, isBefore, differenceInMinutes, addHours, isSameHour, isFuture
+  format, setMinutes, setSeconds, isBefore, differenceInMinutes, addHours, isSameHour, isFuture, startOfDay, addMinutes
 } from 'date-fns';
 import { days } from '../constants';
 import AppointmentForm, { AppointmentFormType } from '../../AppointmentForm';
@@ -14,9 +14,10 @@ import { useConfig } from '../../../../context/ConfigProvider/useConfig';
 export const Cell = ({ row, appointments, day }: { row: any, appointments: Appointment[], day: typeof days[0] }) => {
   const { isOpen, onOpen, onClose } = useDisclosure()
   const initialRef = useRef(null)
-  const { inativeDays } = useConfig()
+  const { inativeDays, lunchTime } = useConfig()
 
-  const isInativeDay = inativeDays.includes(new Date(row[day.key]).getDay());
+  const isInativeDay = !!inativeDays && inativeDays[day.key] || false;
+  const isLunchTime = !!lunchTime && isSameHour(addMinutes(startOfDay(row[day.key]), lunchTime.start), new Date(row[day.key])) || false
 
   const formInitialValues: AppointmentFormType = {
     date: setMinutes(setSeconds(row[day.key], 0), 0),
@@ -43,49 +44,66 @@ export const Cell = ({ row, appointments, day }: { row: any, appointments: Appoi
       h="100%"
       minW={"4px"}
       minH={"6vh"}
-      bg={isInativeDay ? "#f1f1f1" : "white"}
+      bg={isInativeDay ? "#d1d1d1" : "white"}
+      opacity={isInativeDay ? 0.5 : 1}
       borderLeft={"1px solid"}
       borderTop={"1px solid"}
       borderColor={"#c1c1c1"}
       position={"relative"}
+      fontSize={"0.6em"}
     >
-      {!isInativeDay && <>
-        {appointments.map((appointment, index) => {
-          if (
-            isSameHour(appointment.initDate, row[day.key])) {
-            return (
-              <Box key={index}>
-                <AppointmentCard appointment={appointment} onEdit={(formValues: AppointmentFormType) => {
-                  setFormValues(formValues);
-                  onOpen();
-                }} />
-              </Box>
-            );
-          }
-        })}
-        {isBefore(row[day.key], new Date()) && differenceInMinutes(new Date(), row[day.key]) < 60 && (
-          <HorizontalLine date={new Date()} />
-        )}
+      {isInativeDay ? <>Dia Indisponível</> : isLunchTime && lunchTime ?
+        <Box
+          bg={"#e1e1e1"}
+          position={"absolute"}
+          top={0}
+          left={0}
+          right={0}
+          height={`${(lunchTime.end / 60 + lunchTime.end - lunchTime.start) / 60 * 100}%`}
+          zIndex={2}
+        >
+          <Text opacity={0.5}>
+            Almoço <br />
+            {format(addMinutes(startOfDay(row[day.key]), lunchTime.start), "HH:mm")} - {format(addMinutes(startOfDay(row[day.key]), lunchTime.end), "HH:mm")}
+          </Text>
+        </Box>
+        : <>
+          {appointments.map((appointment, index) => {
+            if (
+              isSameHour(appointment.initDate, row[day.key])) {
+              return (
+                <Box key={index}>
+                  <AppointmentCard appointment={appointment} onEdit={(formValues: AppointmentFormType) => {
+                    setFormValues(formValues);
+                    onOpen();
+                  }} />
+                </Box>
+              );
+            }
+          })}
+          {isBefore(row[day.key], new Date()) && differenceInMinutes(new Date(), row[day.key]) < 60 && (
+            <HorizontalLine date={new Date()} />
+          )}
 
-        {hasAppointment && isFuture(row[day.key]) && (
-          <Button
-            position={"absolute"}
-            top={0}
-            right={0}
-            padding={"0px"}
-            size={"xs"}
-            variant={"outline"}
-            borderRadius={"3px"}
-            colorScheme={"cyan"}
-            onClick={() => {
-              setFormValues(formInitialValues);
-              onOpen();
-            }}
-          >
-            +
-          </Button>
-        )}
-      </>
+          {hasAppointment && isFuture(row[day.key]) && (
+            <Button
+              position={"absolute"}
+              top={0}
+              right={0}
+              padding={"0px"}
+              size={"xs"}
+              variant={"outline"}
+              borderRadius={"3px"}
+              colorScheme={"cyan"}
+              onClick={() => {
+                setFormValues(formInitialValues);
+                onOpen();
+              }}
+            >
+              +
+            </Button>
+          )}
+        </>
       }
       <Modal
         initialFocusRef={initialRef}

@@ -14,6 +14,7 @@ function usePersistedState<T>(key: string, initialState: T): Response<T> {
   });
 
   useEffect(() => {
+    if (!state) return
     localStorage.setItem(key, JSON.stringify(state));
   }, [key, state]);
 

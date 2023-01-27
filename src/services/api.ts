@@ -4,7 +4,20 @@ import routes from "../routes/routes";
 export const TOKEN_STORAGE_KEY = "token";
 export const REFRESH_STORAGE_TOKEN_KEY = "refreshToken";
 
-export const API_BASE_URL = 'http://15.228.60.83:3000';
+let API_HOST = "";
+
+// eslint-disable-next-line no-restricted-globals
+switch (location.host) {
+  case "localhost:3000":
+    API_HOST = "http://localhost:3000";
+    break;
+  case "http://geriatramarinalobo.com.br":
+  case "https://www.geriatramarinalobo.com.br":
+    API_HOST = "https://http://api.geriatramarinalobo.com.br";
+    break;
+}
+
+export const API_BASE_URL = API_HOST;
 // export const API_BASE_URL = 'http://localhost:3000';
 const token = localStorage.getItem(TOKEN_STORAGE_KEY)
 

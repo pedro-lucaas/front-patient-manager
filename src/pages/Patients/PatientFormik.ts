@@ -23,8 +23,7 @@ export const PatientFormik = (initialValues: PatientFormType) => {
       navigate(redirects.MEDICAL_RECORDS)
       toast.success('Paciente salvo com sucesso!')
     } catch (e: any) {
-      console.log(e)
-      toast.error(e.message)
+      toast.error(e.response.data.message)
     }
     queryClient.invalidateQueries(PATIENT_QUERY_KEY)
   }
@@ -51,6 +50,12 @@ export const PatientFormik = (initialValues: PatientFormType) => {
       }
       if (!isDate(values.birthDate)) {
         errors.birthDate = 'Data inválida';
+      }
+      if (!values.cpf) {
+        errors.cpf = 'CPF é obrigatório';
+      }
+      if (!values.sex) {
+        errors.sex = 'Selecione uma opção';
       }
       return errors;
     }
