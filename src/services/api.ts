@@ -11,8 +11,8 @@ switch (location.host) {
   case "localhost:3000":
     API_HOST = "http://localhost:3000";
     break;
-  case "http://geriatramarinalobo.com.br":
-  case "https://www.geriatramarinalobo.com.br":
+  case "geriatramarinalobo.com.br":
+  case "www.geriatramarinalobo.com.br":
     API_HOST = "https://http://api.geriatramarinalobo.com.br";
     break;
 }
