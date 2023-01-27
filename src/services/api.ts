@@ -4,8 +4,8 @@ import routes from "../routes/routes";
 export const TOKEN_STORAGE_KEY = "token";
 export const REFRESH_STORAGE_TOKEN_KEY = "refreshToken";
 
-// export const API_BASE_URL = 'http://15.228.60.83:3000';
-export const API_BASE_URL = 'http://localhost:3000';
+export const API_BASE_URL = 'http://15.228.60.83:3000';
+// export const API_BASE_URL = 'http://localhost:3000';
 const token = localStorage.getItem(TOKEN_STORAGE_KEY)
 
 export const Api = axios.create({
