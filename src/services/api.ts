@@ -7,8 +7,9 @@ export const REFRESH_STORAGE_TOKEN_KEY = "refreshToken";
 let API_HOST = "";
 
 // eslint-disable-next-line no-restricted-globals
+
 switch (location.host) {
-  case "localhost:3000":
+  case "127.0.0.1:5173":
     API_HOST = "http://localhost:3000";
     break;
   case "geriatramarinalobo.com.br":

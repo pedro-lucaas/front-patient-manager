@@ -103,8 +103,8 @@ const Profile: React.FC = () => {
             <div className="bg-gray-50 px-8 py-2 my-3 border-b items-center">
               <span>Horário de funcionamento</span>
               <HStack mb={"20px"}>
-                <Input type="number"
-                  value={workingTime.start}
+                <Input
+                  value={workingTime.start.toString()}
                   as={PatternFormat}
                   format={"##"}
                   onChange={(e) => setWorkingTime({
@@ -113,8 +113,8 @@ const Profile: React.FC = () => {
                   })}
                   onBlur={() => toast.success('Horário de funcionamento atualizado')}
                 />
-                <Input type="number"
-                  value={workingTime.end}
+                <Input
+                  value={workingTime.end.toString()}
                   as={PatternFormat}
                   format={"##"}
                   onChange={(e) => setWorkingTime({
