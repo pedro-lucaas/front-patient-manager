@@ -30,7 +30,7 @@ export const NavFilter = ({ filters, setFilters }: { filters: ITableFilters, set
               }}
             >
               <option></option>
-              {filter.options.map((option, key) => (
+              {filter.options.map((option) => (
                 <option key={option.value} value={option.value}>{option.label}</option>
               ))}
             </Select >

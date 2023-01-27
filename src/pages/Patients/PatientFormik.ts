@@ -1,4 +1,4 @@
-import { FormikHelpers, useFormik } from 'formik';
+import { useFormik } from 'formik';
 import { useNavigate } from 'react-router-dom';
 import redirects from '../../routes/routes';
 import { PatientFormType } from './types';
@@ -13,14 +13,14 @@ export const PatientFormik = (initialValues: PatientFormType) => {
   const queryClient = useQueryClient();
   const isNew = !initialValues.id;
 
-  const onSubmit = async (values: typeof initialValues, actions: FormikHelpers<typeof initialValues>) => {
+  const onSubmit = async (values: typeof initialValues) => {
     try {
       if (!isNew) {
         await updatePatientFn({ ...values, birthDate: new Date(values.birthDate).toISOString() })
       } else {
         await createPatientFn({ ...values, birthDate: new Date(values.birthDate).toISOString() })
       }
-      navigate(redirects.PATIENTS)
+      navigate(redirects.MEDICAL_RECORDS)
       toast.success('Paciente salvo com sucesso!')
     } catch (e: any) {
       console.log(e)

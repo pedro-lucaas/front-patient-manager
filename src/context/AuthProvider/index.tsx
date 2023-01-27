@@ -1,4 +1,4 @@
-import React, { createContext } from 'react';
+import { createContext } from 'react';
 import usePersistedState from '../../utils/usePersistedState';
 import { IAuthContext, IAuthProvider, IUser } from './types';
 import { loginRequest } from './service';

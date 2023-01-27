@@ -1,7 +1,6 @@
-import { Box, Flex, Spinner, VStack } from '@chakra-ui/react';
-import React, { useState } from 'react';
-import { useQuery, useQueryClient } from 'react-query';
-import { Api, apiEndpoints } from '../../../services/api';
+import { Flex, Spinner } from '@chakra-ui/react';
+import { useState } from 'react';
+import { useQuery } from 'react-query';
 import DataTable, { createTheme } from "react-data-table-component";
 import { Pagination } from '../../../helpers/Pagination';
 import { ITableFilters, ITableProps } from './index';
@@ -27,7 +26,7 @@ const Table = (props: ITableProps<any>) => {
   const [search, setSearch] = useState('');
   const [filters, setFilters] = useState<ITableFilters>(initialFilters ?? {});
 
-  const transformedFilters = Object.entries(filters).reduce((acc, obj, i) => { return { ...acc, [obj[0]]: obj[1].options.find(option => option.selected)?.value ?? '' } }, {});
+  const transformedFilters = Object.entries(filters).reduce((acc, obj) => { return { ...acc, [obj[0]]: obj[1].options.find(option => option.selected)?.value ?? '' } }, {});
 
   const {
     data,

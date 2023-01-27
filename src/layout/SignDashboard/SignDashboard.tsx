@@ -1,4 +1,3 @@
-import React from 'react';
 import { Flex } from '@chakra-ui/react';
 
 const SignDashboard = ({ children }: { children: JSX.Element }) => {
