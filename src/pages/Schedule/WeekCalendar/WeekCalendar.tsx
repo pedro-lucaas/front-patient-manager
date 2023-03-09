@@ -9,7 +9,7 @@ import DatePicker from "react-datepicker";
 import { BiCalendar } from "react-icons/bi";
 import { IoMdArrowDropright, IoMdArrowDropleft } from "react-icons/io";
 import { APPOINTMENT_QUERY_KEY, listAppointments } from "../../../services/api/appointments";
-import { Appointment, AppointmentStatusEnum } from "../../../services/api/appointments/types";
+import { Appointment } from "../../../services/api/appointments/types";
 
 
 createTheme('weekCalendar', {
