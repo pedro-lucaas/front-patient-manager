@@ -6,19 +6,22 @@ import { ChakraProvider } from '@chakra-ui/react';
 import { AuthProvider } from './context/AuthProvider';
 import { defaultThem } from './theme/theme';
 import { QueryClient, QueryClientProvider } from 'react-query'
+import { BrowserRouter } from 'react-router-dom';
 
 const queryClient = new QueryClient()
 
 function App() {
   return (
-    <AuthProvider>
-      <QueryClientProvider client={queryClient}>
-        <ChakraProvider theme={defaultThem}>
-          <Router />
+    <ChakraProvider theme={defaultThem}>
+      <BrowserRouter>
+        <QueryClientProvider client={queryClient}>
+          <AuthProvider>
+            <Router />
+          </AuthProvider>
           <ToastContainer autoClose={1000} />
-        </ChakraProvider>
-      </QueryClientProvider>
-    </AuthProvider>
+        </QueryClientProvider>
+      </BrowserRouter>
+    </ChakraProvider>
   )
 }
 

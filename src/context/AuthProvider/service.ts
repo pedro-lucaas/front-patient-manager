@@ -1,9 +1,10 @@
 import { toast } from "react-toastify";
-import { Api, apiEndpoints, REFRESH_STORAGE_TOKEN_KEY, TOKEN_STORAGE_KEY } from "../../services/api";
+import { Api, REFRESH_STORAGE_TOKEN_KEY, TOKEN_STORAGE_KEY } from "../../services/api";
+import { endpoints } from "../../services/api/endpoints";
 
 export async function loginRequest(email: string, password: string) {
   try {
-    const request = await Api.post(apiEndpoints.LOGIN, {
+    const request = await Api.post(endpoints.LOGIN, {
       email,
       password,
     });
@@ -12,9 +13,7 @@ export async function loginRequest(email: string, password: string) {
     localStorage.setItem(TOKEN_STORAGE_KEY, access_token);
     localStorage.setItem(REFRESH_STORAGE_TOKEN_KEY, refresh_token);
 
-    const profile = await getProfileRequest();
-
-    return { ...profile, token: access_token };
+    return { token: access_token };
   } catch (error: any) {
     toast.error(error.response.data.message);
     return null;
@@ -23,8 +22,18 @@ export async function loginRequest(email: string, password: string) {
 
 export async function getProfileRequest() {
   try {
-    const request = await Api.get(apiEndpoints.PROFILE);
-    return request.data;
+    const response = await Api.get(endpoints.PROFILE);
+    return response.data;
+  } catch (error: any) {
+    toast.error(error.response.data.message);
+    return null;
+  }
+}
+
+export async function updateProfileRequest(data: any) {
+  try {
+    const response = await Api.put(endpoints.PROFILE, data);
+    return response.data;
   } catch (error: any) {
     toast.error(error.response.data.message);
     return null;

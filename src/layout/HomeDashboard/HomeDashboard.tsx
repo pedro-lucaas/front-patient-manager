@@ -25,17 +25,19 @@ const HeaderMenuItem = ({ children, to }: { children: string, to: string }) => {
 
 const HomeDashboard: React.FC<{ children: any }> = ({ children }: { children: JSX.Element }) => {
   const auth = useAuth();
-  const location = useLocation();
   const navigate = useNavigate();
 
-  if (!auth.user) {
-    return <Navigate to={redirects.LOGIN} state={{ from: location }} replace />;
+  if (!auth.isLogged) {
+    return <Navigate to={redirects.LOGIN} />;
   }
 
   return <Flex flexDir={"column"} minW={"100%"} minH={"100%"}>
     <Flex h={"50px"} w={"100%"} bg={"primary.500"} justifyContent={"space-between"}>
       <Box>Logo</Box>
       <HStack spacing={4}>
+        <HeaderMenuItem to={redirects.HOME}>
+          Início
+        </HeaderMenuItem>
         <HeaderMenuItem to={redirects.SCHEDULE}>
           Agenda
         </HeaderMenuItem>

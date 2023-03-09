@@ -3,30 +3,30 @@ import { day } from "./types";
 export const days: day[] = [
   {
     name: "Domingo",
-    key: "sunday",
+    key: 0,
   },
   {
     name: "Segunda",
-    key: "monday",
+    key: 1,
   },
   {
     name: "Terça",
-    key: "tuesday",
+    key: 2,
   },
   {
     name: "Quarta",
-    key: "wednesday",
+    key: 3,
   },
   {
     name: "Quinta",
-    key: "thursday",
+    key: 4,
   },
   {
     name: "Sexta",
-    key: "friday",
+    key: 5,
   },
   {
     name: "Sábado",
-    key: "saturday",
+    key: 6,
   },
 ];

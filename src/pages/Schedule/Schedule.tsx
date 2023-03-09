@@ -1,6 +1,6 @@
 import { Flex, VStack, useMediaQuery } from '@chakra-ui/react';
 import React from 'react';
-import { PatientsOfDay } from './PatientsOfDay/PatientsOfDay';
+import { PatientsOfDay } from '../../components/PatientsOfDay';
 import { WeekCalendar } from './WeekCalendar';
 
 // import { Container } from './styles';
@@ -8,9 +8,7 @@ import { WeekCalendar } from './WeekCalendar';
 const Schedule: React.FC = () => {
   const [isLargerThan820] = useMediaQuery("(min-width: 820px)");
   return <Flex w={"full"} gap="15px" flexDir={isLargerThan820 ? "row" : "column"} alignItems={"center"}>
-    <Flex className="bg-white shadow-md ring-1 ring-gray-900/10 pb-4" minW={"200px"} maxW={isLargerThan820 ? "350px" : "none"} w="full" h="full" direction="column">
-      <PatientsOfDay />
-    </Flex>
+    <PatientsOfDay />
     <VStack spacing={4} w="full" mt={"50px"} className="container" pr={"15px"}>
       <h1 className="w-full text-2xl text-gray-900">Agenda</h1>
       <WeekCalendar />

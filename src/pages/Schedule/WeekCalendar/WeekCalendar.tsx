@@ -2,14 +2,14 @@ import { useState } from "react";
 import { Box, Flex, Icon, Spinner } from '@chakra-ui/react';
 import { useQuery } from 'react-query';
 import DataTable, { createTheme } from "react-data-table-component";
-import { APPOINTMENT_QUERY_KEY, listAppointments } from "../service";
-import { AppointmentRaw, AppointmentStatusEnum } from "../types";
 import { makeColumns, makeData } from "./utils";
-import { setMinutes, setSeconds, setHours, addDays, format } from "date-fns";
+import { setMinutes, setSeconds, setHours, addDays, format, addMonths } from "date-fns";
 import { Pagination } from "../../../helpers/Pagination";
 import DatePicker from "react-datepicker";
 import { BiCalendar } from "react-icons/bi";
 import { IoMdArrowDropright, IoMdArrowDropleft } from "react-icons/io";
+import { APPOINTMENT_QUERY_KEY, listAppointments } from "../../../services/api/appointments";
+import { Appointment, AppointmentStatusEnum } from "../../../services/api/appointments/types";
 
 
 createTheme('weekCalendar', {
@@ -22,9 +22,9 @@ const WeekCalendar = () => {
   const [day, setDay] = useState(new Date());
 
   const data = makeData(day)
-  const interval = { initDate: data[0].sunday.toISOString(), endDate: data[data.length - 1].saturday.toISOString() }
+  const interval = { initDate: data[0][0].toISOString(), endDate: data[data.length - 1][6].toISOString() }
 
-  const { data: appointmentsRaw, isLoading } = useQuery<Pagination<AppointmentRaw>, Error>([APPOINTMENT_QUERY_KEY, interval],
+  const { data: appointmentsRaw, isLoading } = useQuery<Pagination<Appointment>, Error>([APPOINTMENT_QUERY_KEY, { interval }],
     () => listAppointments(interval));
 
   const appointments = appointmentsRaw?.items.map((appointment) => {
@@ -56,7 +56,7 @@ const WeekCalendar = () => {
           <div className="z-10">
             <DatePicker selected={day} onChange={(date: Date) => setDay(date)} customInput={
               <Box as="button" className="border border-gray-500 font-medium text-xs py-2 px-4">
-                {format(data[0].sunday, "dd/MM/yyyy")} - {format(data[data.length - 1].saturday, "dd/MM/yyyy")}
+                {format(data[0][0], "dd/MM/yyyy")} - {format(data[data.length - 1][6], "dd/MM/yyyy")}
                 <Icon as={BiCalendar} ml={2} boxSize={"15px"} mb={"1px"} />
               </Box>
             } />
@@ -67,6 +67,13 @@ const WeekCalendar = () => {
           >
             <Icon as={IoMdArrowDropright} boxSize={"15px"} mb={"1px"} />
           </button>
+        </Flex>
+        <Flex w={"full"} justifyContent={"center"} alignItems={"center"} gap={"10px"}>
+          <Box fontSize={"0.7em"} color={"linkedin.500"} textDecoration={"underline"} cursor={"pointer"} onClick={() => setDay(new Date())}>Hoje</Box>
+          <Box fontSize={"0.7em"} color={"linkedin.500"} textDecoration={"underline"} cursor={"pointer"} onClick={() => setDay(addDays(new Date(), 15))}>15 dias</Box>
+          <Box fontSize={"0.7em"} color={"linkedin.500"} textDecoration={"underline"} cursor={"pointer"} onClick={() => setDay(addMonths(new Date(), 1))}>1 meses</Box>
+          <Box fontSize={"0.7em"} color={"linkedin.500"} textDecoration={"underline"} cursor={"pointer"} onClick={() => setDay(addMonths(new Date(), 3))}>3 meses</Box>
+          <Box fontSize={"0.7em"} color={"linkedin.500"} textDecoration={"underline"} cursor={"pointer"} onClick={() => setDay(addMonths(new Date(), 6))}>6 meses</Box>
         </Flex>
         <Flex w={"full"} maxW={"980px"} position="relative">
           {isLoading &&

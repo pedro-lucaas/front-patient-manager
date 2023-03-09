@@ -1,23 +1,24 @@
 import { Box, Button, Divider, Modal, ModalBody, ModalCloseButton, ModalContent, ModalHeader, ModalOverlay, useDisclosure, Text } from '@chakra-ui/react';
-import { Appointment } from '../../types';
 import {
   format, setMinutes, setSeconds, isBefore, differenceInMinutes, addHours, isSameHour, isFuture, startOfDay, addMinutes
 } from 'date-fns';
 import { days } from '../constants';
-import AppointmentForm, { AppointmentFormType } from '../../AppointmentForm';
+import AppointmentForm from '../../AppointmentForm';
 import { AppointmentCard } from './AppointmentCard';
 import { HorizontalLine } from './HorizontalLine';
-import { useRef, useState } from 'react';
-import { useConfig } from '../../../../context/ConfigProvider/useConfig';
+import { useState } from 'react';
+import { useAuth } from '../../../../context/AuthProvider/useAuth';
+import { Appointment, AppointmentFormType } from '../../../../services/api/appointments/types';
+import { WeekCalendarTable } from '../types';
 
-
-export const Cell = ({ row, appointments, day }: { row: any, appointments: Appointment[], day: typeof days[0] }) => {
+export const Cell = ({ row, appointments, day }: { row: WeekCalendarTable, appointments: Appointment[], day: typeof days[0] }) => {
   const { isOpen, onOpen, onClose } = useDisclosure()
-  const initialRef = useRef(null)
-  const { inativeDays, lunchTime } = useConfig()
 
-  const isInativeDay = !!inativeDays && inativeDays[day.key] || false;
-  const isLunchTime = !!lunchTime && isSameHour(addMinutes(startOfDay(row[day.key]), lunchTime.start), new Date(row[day.key])) || false
+  const { user } = useAuth()
+  const lunchTime = user?.lunchTime || [0, 0]
+  const inactiveDays = user?.inactiveDays || [];
+  const isInativeDay = !!inactiveDays && inactiveDays.includes(day.key) || false;
+  const isLunchTime = !!lunchTime && isSameHour(addMinutes(startOfDay(row[day.key]), lunchTime[0]), new Date(row[day.key])) || false
 
   const formInitialValues: AppointmentFormType = {
     date: setMinutes(setSeconds(row[day.key], 0), 0),
@@ -37,6 +38,8 @@ export const Cell = ({ row, appointments, day }: { row: any, appointments: Appoi
       break;
     }
   }
+
+  if (!user) return <></>
 
   return (
     <Box
@@ -59,12 +62,12 @@ export const Cell = ({ row, appointments, day }: { row: any, appointments: Appoi
           top={0}
           left={0}
           right={0}
-          height={`${(lunchTime.end / 60 + lunchTime.end - lunchTime.start) / 60 * 100}%`}
+          height={`${(lunchTime[1] / 60 + lunchTime[1] - lunchTime[0]) / 60 * 100}%`}
           zIndex={2}
         >
           <Text opacity={0.5}>
             Almoço <br />
-            {format(addMinutes(startOfDay(row[day.key]), lunchTime.start), "HH:mm")} - {format(addMinutes(startOfDay(row[day.key]), lunchTime.end), "HH:mm")}
+            {format(addMinutes(startOfDay(row[day.key]), lunchTime[0]), "HH:mm")} - {format(addMinutes(startOfDay(row[day.key]), lunchTime[1]), "HH:mm")}
           </Text>
         </Box>
         : <>
@@ -106,7 +109,6 @@ export const Cell = ({ row, appointments, day }: { row: any, appointments: Appoi
         </>
       }
       <Modal
-        initialFocusRef={initialRef}
         isOpen={isOpen}
         onClose={onClose}
       >

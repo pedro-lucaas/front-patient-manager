@@ -1,11 +1,11 @@
 import { TableColumn } from "react-data-table-component";
-import { Appointment, } from "../types";
 import { WeekCalendarTable } from "./types";
 import { setHours, setMinutes, setSeconds, isBefore, addMinutes, addDays, format } from "date-fns";
 import { days } from "./constants";
 import { Cell } from "./Components/Cell";
 import { HeadRow } from "./Components/HeadRow";
-import { useConfig } from "../../../context/ConfigProvider/useConfig";
+import { useAuth } from "../../../context/AuthProvider/useAuth";
+import { Appointment } from "../../../services/api/appointments/types";
 
 export function makeColumns(appointments: Appointment[], week: WeekCalendarTable): TableColumn<WeekCalendarTable>[] {
   const columns: TableColumn<WeekCalendarTable>[] = [
@@ -31,9 +31,8 @@ export function makeColumns(appointments: Appointment[], week: WeekCalendarTable
       },
       conditionalCellStyles: [
         {
-          when: (row) => {
-            const date = row[day.key].getDay();
-            return date === 6;
+          when: () => {
+            return day === days[days.length - 1];
           },
           style: {
             borderRight: "1px solid #c1c1c1",
@@ -48,23 +47,24 @@ export function makeColumns(appointments: Appointment[], week: WeekCalendarTable
 }
 
 export function makeData(dayDateTime: Date): WeekCalendarTable[] {
-  const { workingTime } = useConfig()
+  const { user } = useAuth()
+  const workTime = user?.workTime || [8, 18];
   const data = [];
   const step = 60;
-  const start = workingTime.start;
-  const end = workingTime.end;
+  const start = workTime[0];
+  const end = workTime[1];
   const startDateTime = addDays(setHours(setMinutes(setSeconds(dayDateTime, 0), 0), start), - dayDateTime.getDay());
   const endDateTime = setHours(startDateTime, end);
   let iterator = startDateTime;
   while (isBefore(iterator, endDateTime)) {
     const row: WeekCalendarTable = {
-      sunday: iterator,
-      monday: addDays(iterator, 1),
-      tuesday: addDays(iterator, 2),
-      wednesday: addDays(iterator, 3),
-      thursday: addDays(iterator, 4),
-      friday: addDays(iterator, 5),
-      saturday: addDays(iterator, 6),
+      0: iterator,
+      1: addDays(iterator, 1),
+      2: addDays(iterator, 2),
+      3: addDays(iterator, 3),
+      4: addDays(iterator, 4),
+      5: addDays(iterator, 5),
+      6: addDays(iterator, 6),
     }
     data.push(row);
     iterator = addMinutes(iterator, step);

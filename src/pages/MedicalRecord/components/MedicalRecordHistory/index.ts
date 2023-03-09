@@ -1,0 +1,1 @@
+export { default as MedicalRecordHistory } from './MedicalRecordHistory';

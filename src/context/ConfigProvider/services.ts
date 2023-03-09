@@ -1,18 +1,13 @@
-import { Pagination } from "../../helpers/Pagination";
-import { Api, apiEndpoints } from "../../services/api";
+import { Api } from "../../services/api";
+import { endpoints } from "../../services/api/endpoints";
 import { IAttribute } from "./types";
 
-export async function listAttibutesFn() {
-  const res = await Api.get<Pagination<IAttribute>>(apiEndpoints.ATTRIBUTES)
+export async function createAttributeFn(patientId: string, attribute: IAttribute) {
+  const res = await Api.post<IAttribute>(endpoints.ATTRIBUTE.CREATE.replace(":patientId", patientId), attribute)
   return res.data;
 }
 
-export async function createAttributeFn(attribute: IAttribute) {
-  const res = await Api.post<IAttribute>(apiEndpoints.ATTRIBUTE.replace("/:name", ""), attribute)
-  return res.data;
-}
-
-export async function deleteAttributeFn(name: string) {
-  const res = await Api.delete<IAttribute>(apiEndpoints.ATTRIBUTE.replace(":name", name))
+export async function deleteAttributeFn(patientId: string, name: string) {
+  const res = await Api.delete(endpoints.ATTRIBUTE.DELETE.replace(":patientId", patientId).replace(":name", name))
   return res.data;
 }

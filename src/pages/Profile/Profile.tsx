@@ -1,28 +1,38 @@
 import React from 'react';
 import { useAuth } from '../../context/AuthProvider/useAuth';
-import { useConfig } from '../../context/ConfigProvider/useConfig';
-import { PatternFormat, patternFormatter } from 'react-number-format';
-import { Button, Checkbox, Flex, HStack, Input, VStack } from '@chakra-ui/react';
+import { NumericFormat, PatternFormat, patternFormatter } from 'react-number-format';
+import { Checkbox, HStack, Input, VStack } from '@chakra-ui/react';
 import { toast } from 'react-toastify';
 import { addHours, addMinutes, differenceInMinutes, format, startOfToday } from 'date-fns';
 // import { Container } from './styles';
 
 const Profile: React.FC = () => {
-  const { user } = useAuth();
-  const { attributes, createAttribute, deleteAttribute, workingTime, setWorkingTime, lunchTime, setLunchTime, inativeDays, setInativeDays } = useConfig();
-  const [attribute, setAttribute] = React.useState("");
-  const [isCreating, setIsCreating] = React.useState(false);
+  const { user, updateProfile } = useAuth();
 
-  const handleCreateAttribute = () => {
-    if (!attribute) {
-      toast.error('Name is required');
-      return;
-    };
-    createAttribute(attribute.toLowerCase(), "");
-    setIsCreating(false);
-    setAttribute("")
+  if (!user) return null;
+
+  const setWorkingTime = async ({ start, end }: { start: number, end: number }) => {
+    if (start > end) return toast.error("Horário de início não pode ser maior que o horário de término!")
+    if (!start || !end) return
+    await updateProfile({ workTime: JSON.stringify([start, end]) })
+    toast.success("Horário de trabalho atualizado com sucesso!")
   }
 
+  const setLunchTime = async ({ start, end }: { start: number, end: number }) => {
+    if (start > end) return toast.error("Horário de início não pode ser maior que o horário de término!")
+    if (isNaN(start) || isNaN(end)) return
+    await updateProfile({ lunchTime: JSON.stringify([start, end]) })
+    toast.success("Horário de almoço atualizado com sucesso!")
+  }
+
+  const toggleDayIsActive = async (day: number) => {
+    const { inactiveDays } = user
+    const newInactiveDays = inactiveDays.includes(day) ? inactiveDays.filter((d: number) => d !== day) : [...inactiveDays, day]
+    await updateProfile({ inactiveDays: JSON.stringify(newInactiveDays) })
+    toast.success("Dias de inatividade atualizados com sucesso!")
+  }
+
+  const { workTime, lunchTime, inactiveDays } = user
   return (
     <VStack spacing={4} w="full" justifyContent={{ sm: "center" }}>
       <div className="w-full px-6 py-4 bg-white rounded shadow-md ring-1 ring-gray-900/10">
@@ -50,78 +60,31 @@ const Profile: React.FC = () => {
             <h3 className="text-lg font-medium leading-6 text-gray-900">Configurações</h3>
           </div>
           <div>
-            <h4 className="px-8 pt-4 text-gray-500">Atributos adicionais</h4>
-            <Flex justifyContent="center" alignItems="center" flexDirection="column" pt={"20px"}>
-              {attributes?.map(attribute => (
-                <Flex
-                  key={attribute.name}
-                  justifyContent="space-between"
-                  w={"100%"}
-                  h={"50px"}
-                  px={8}
-                >
-                  <Flex textTransform={"capitalize"}>
-                    <span>{attribute.name}</span>
-                  </Flex>
-                  <Button colorScheme={"red"} onClick={() => deleteAttribute(attribute.name)}> - </Button>
-                </Flex>
-              ))}
-              {isCreating && (
-                <Flex
-                  justifyContent="space-between"
-                  w={"100%"}
-                  h={"50px"}
-                  pr={8}
-                  pl={4}
-                  gap={2}
-                >
-                  <Input
-                    id='name'
-                    placeholder='Nome'
-                    type={"text"}
-                    value={attribute}
-                    onChange={(e) => setAttribute(e.target.value)}
-                  />
-                  <Button colorScheme={"whatsapp"} fontSize={"0.7em"} onClick={handleCreateAttribute}>
-                    Salvar
-                  </Button>
-                  <Button colorScheme={"red"} onClick={() => setIsCreating(false)}>
-                    -
-                  </Button>
-                </Flex>
-              )}
-            </Flex>
-            {!isCreating &&
-              <div className="flex justify-between bg-gray-50 px-8 py-3 border-b">
-                <Button colorScheme={"primary"} ml={"auto"} size={"sm"} onClick={() => setIsCreating(!isCreating)}>Add</Button>
-              </div>
-            }
-
-          </div>
-          <div>
             <h4 className="px-8 pt-4 text-gray-500">Configurações da Agenda</h4>
             <div className="bg-gray-50 px-8 py-2 my-3 border-b items-center">
               <span>Horário de funcionamento</span>
               <HStack mb={"20px"}>
                 <Input
-                  value={workingTime.start.toString()}
-                  as={PatternFormat}
-                  format={"##"}
-                  onChange={(e) => setWorkingTime({
+                  value={workTime[0].toString()}
+                  as={NumericFormat}
+                  suffix=":00"
+                  fixedDecimalScale={true}
+                  decimalScale={0}
+                  onBlur={(e) => setWorkingTime({
                     start: parseInt(e.target.value),
-                    end: workingTime.end
+                    end: workTime[1]
                   })}
-                  onBlur={() => toast.success('Horário de funcionamento atualizado')}
                 />
                 <Input
-                  value={workingTime.end.toString()}
-                  as={PatternFormat}
-                  format={"##"}
-                  onChange={(e) => setWorkingTime({
-                    start: workingTime.start,
+                  value={workTime[1].toString()}
+                  as={NumericFormat}
+                  suffix=":00"
+                  fixedDecimalScale={true}
+                  decimalScale={0}
+                  onBlur={(e) => setWorkingTime({
+                    start: workTime[0],
                     end: parseInt(e.target.value)
                   })}
-                  onBlur={() => toast.success('Horário de funcionamento atualizado')}
                 />
               </HStack>
               <span>Horário de almoço</span>
@@ -129,7 +92,7 @@ const Profile: React.FC = () => {
                 <Input type="text"
                   as={PatternFormat}
                   format={"##:##"}
-                  value={format(addMinutes(startOfToday(), lunchTime?.start || 0), "HH:mm")}
+                  value={format(addMinutes(startOfToday(), lunchTime[0] || 0), "HH:mm")}
                   isAllowed={(values: any) => {
                     const { formattedValue } = values;
                     const hours = parseInt(formattedValue.substr(0, 2));
@@ -139,21 +102,19 @@ const Profile: React.FC = () => {
                     }
                     return true;
                   }}
-                  onValueChange={(value: any) => {
-                    const { formattedValue } = value;
-                    const hours = parseInt(formattedValue.substr(0, 2));
-                    const minutes = parseInt(formattedValue.substr(3, 2));
+                  onBlur={(e) => {
+                    const hours = parseInt(e.target.value.substr(0, 2));
+                    const minutes = parseInt(e.target.value.substr(3, 2));
                     setLunchTime({
                       start: differenceInMinutes(addHours(addMinutes(startOfToday(), minutes), hours), startOfToday()),
-                      end: lunchTime?.end ?? differenceInMinutes(startOfToday(), addHours(addMinutes(startOfToday(), minutes), hours)) + 60
+                      end: lunchTime[1] ?? differenceInMinutes(addHours(addMinutes(startOfToday(), minutes), hours), startOfToday()) + 60
                     })
                   }}
-                  onBlur={() => toast.success('Horário de almoço atualizado')}
                 />
                 <Input type="text"
                   as={PatternFormat}
                   format={"##:##"}
-                  value={format(addMinutes(startOfToday(), lunchTime?.end || 0), "HH:mm")}
+                  value={format(addMinutes(startOfToday(), lunchTime[1] || 0), "HH:mm")}
                   isAllowed={(values: any) => {
                     const { formattedValue } = values;
                     const hours = parseInt(formattedValue.substr(0, 2));
@@ -163,29 +124,26 @@ const Profile: React.FC = () => {
                     }
                     return true;
                   }}
-                  onValueChange={(value: any) => {
-                    const { formattedValue } = value;
-                    const hours = parseInt(formattedValue.substr(0, 2));
-                    const minutes = parseInt(formattedValue.substr(3, 2));
+                  onBlur={(e) => {
+                    const hours = parseInt(e.target.value.substr(0, 2));
+                    const minutes = parseInt(e.target.value.substr(3, 2));
                     setLunchTime({
-                      start: lunchTime?.start ?? differenceInMinutes(startOfToday(), addHours(addMinutes(startOfToday(), minutes), hours)) - 60,
+                      start: lunchTime[0] ?? differenceInMinutes(addHours(addMinutes(startOfToday(), minutes), hours), startOfToday()) - 60,
                       end: differenceInMinutes(addHours(addMinutes(startOfToday(), minutes), hours), startOfToday())
                     })
                   }}
-                  onBlur={() => toast.success('Horário de almoço atualizado!')}
                 />
               </HStack>
               <span>Dias de funcionamento</span>
-              <HStack onChange={() => toast.success('Dias de funcionamento atualizados!')}>
-                <Checkbox isChecked={!inativeDays.sunday} onChange={(e) => setInativeDays({ ...inativeDays, sunday: !e.target.checked })}>Domingo</Checkbox>
-                <Checkbox isChecked={!inativeDays.monday} onChange={(e) => setInativeDays({ ...inativeDays, monday: !e.target.checked })}>Segunda</Checkbox>
-                <Checkbox isChecked={!inativeDays.tuesday} onChange={(e) => setInativeDays({ ...inativeDays, tuesday: !e.target.checked })}>Terça</Checkbox>
-                <Checkbox isChecked={!inativeDays.wednesday} onChange={(e) => setInativeDays({ ...inativeDays, wednesday: !e.target.checked })}>Quarta</Checkbox>
-                <Checkbox isChecked={!inativeDays.thursday} onChange={(e) => setInativeDays({ ...inativeDays, thursday: !e.target.checked })}>Quinta</Checkbox>
-                <Checkbox isChecked={!inativeDays.friday} onChange={(e) => setInativeDays({ ...inativeDays, friday: !e.target.checked })}>Sexta</Checkbox>
-                <Checkbox isChecked={!inativeDays.saturday} onChange={(e) => setInativeDays({ ...inativeDays, saturday: !e.target.checked })}>Sábado</Checkbox>
+              <HStack>
+                <Checkbox isChecked={!inactiveDays.includes(0)} onChange={() => toggleDayIsActive(0)} >Domingo</Checkbox>
+                <Checkbox isChecked={!inactiveDays.includes(1)} onChange={() => toggleDayIsActive(1)}>Segunda</Checkbox>
+                <Checkbox isChecked={!inactiveDays.includes(2)} onChange={() => toggleDayIsActive(2)}>Terça</Checkbox>
+                <Checkbox isChecked={!inactiveDays.includes(3)} onChange={() => toggleDayIsActive(3)}>Quarta</Checkbox>
+                <Checkbox isChecked={!inactiveDays.includes(4)} onChange={() => toggleDayIsActive(4)}>Quinta</Checkbox>
+                <Checkbox isChecked={!inactiveDays.includes(5)} onChange={() => toggleDayIsActive(5)}>Sexta</Checkbox>
+                <Checkbox isChecked={!inactiveDays.includes(6)} onChange={() => toggleDayIsActive(6)}>Sábado</Checkbox>
               </HStack>
-
             </div>
           </div>
         </div>

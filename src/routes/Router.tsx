@@ -1,29 +1,26 @@
-import { BrowserRouter, Route, Routes, Outlet, Navigate } from "react-router-dom";
-import { ConfigProvider } from "../context/ConfigProvider";
+import { Route, Routes, Outlet, Navigate } from "react-router-dom";
 import HomeDashboard from "../layout/HomeDashboard/HomeDashboard";
 import SignDashboard from "../layout/SignDashboard/SignDashboard";
-import EditPatient from "../pages/Patients/EditPatient";
-import ListPatients from "../pages/Patients/ListPatients";
-import MedicalRecord from "../pages/Patients/MedicalRecord";
-import NewPatient from "../pages/Patients/NewPatient";
-import Profile from "../pages/Profile/Profile";
 import Schedule from "../pages/Schedule/Schedule";
-import Login from "../pages/Sign/Login";
+import { EditPatient, NewPatient } from "../pages/PatientForm";
+import { Profile } from "../pages/Profile";
+import { Login } from "../pages/Sign";
+import { MedicalRecords } from "../pages/MedicalRecords";
+import { MedicalRecord } from "../pages/MedicalRecord";
 import routes from "./routes";
+import { Home } from "../pages/Home";
 
 export default function Router() {
     return (
-        <BrowserRouter>
+        <>
             <Routes>
                 <Route path="/" element={<HomeDashboard children={
-                    <ConfigProvider>
-                        <Outlet />
-                    </ConfigProvider>
+                    <Outlet />
                 } />}>
-                    <Route path={routes.HOME} element={<div>home</div>} />
+                    <Route path={routes.HOME} element={<Home />} />
                     <Route path={routes.PROFILE} element={<Profile />} />
                     <Route path={routes.SCHEDULE} element={<Schedule />} />
-                    <Route path={routes.MEDICAL_RECORDS} element={<ListPatients />} />
+                    <Route path={routes.MEDICAL_RECORDS} element={<MedicalRecords />} />
                     <Route path={routes.MEDICAL_RECORD} element={<MedicalRecord />} />
                     <Route path={routes.NEWPATIENT} element={<NewPatient />} />
                     <Route path={routes.PATIENT} element={<EditPatient />} />
@@ -33,6 +30,6 @@ export default function Router() {
                     <Route path={routes.LOGIN} element={<Login />} />
                 </Route>
             </Routes>
-        </BrowserRouter>
+        </>
     );
 }

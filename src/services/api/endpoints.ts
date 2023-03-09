@@ -1,0 +1,21 @@
+export const endpoints = {
+  LOGIN: '/login',
+  REFRESH_TOKEN: '/refresh-token',
+  REGISTER: '/register',
+  PROFILE: '/profile',
+  PATIENTS: '/patients',
+  PATIENT: '/patient/:id',
+  PATIENT_APPOINTMENTS: '/patient/:id/appointments',
+  ATTRIBUTE: {
+    CREATE: '/patient/:patientId/attribute',
+    DELETE: '/patient/:patientId/attribute/:name',
+  },
+  ATTRIBUTES: '/attributes',
+  APPOINTMENT: '/appointment/:id',
+  APPOINTMENT_IMAGES: '/appointment/:id/images',
+  APPOINTMENT_IMAGE: '/appointment/:id/image/:imageId',
+  START_APPOINTMENT: '/appointment/:id/start',
+  FINISH_APPOINTMENT: '/appointment/:id/finish',
+  CANCEL_APPOINTMENT: '/appointment/:id/cancel',
+  APPOINTMENTS: '/appointments',
+}

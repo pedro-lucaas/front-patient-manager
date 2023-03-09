@@ -32,3 +32,16 @@ select {
     0px 0px 1px rgba(0, 0, 0, 0.2) !important;
   border-radius: 3px !important;
 }
+
+@keyframes pulse {
+  50% {
+    /*noinspection CssUnresolvedCustomProperty*/
+    box-shadow: 0 0 10px 1px var(--chakra-colors-green-400);
+  }
+}
+
+.pulse-animation {
+  background: var(--chakra-colors-green-400);
+  border-radius: 50%;
+  animation: pulse 2s infinite;
+}

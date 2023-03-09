@@ -10,7 +10,7 @@ export const HeadRow = ({ row }: { row: any }) => {
       position={"relative"}
     >
       <Text fontSize={"0.9em"} position={"absolute"} right={0} top={0} transform={"translate(0,-50%)"}>
-        {format(row.sunday, "HH:mm")}
+        {format(row[0], "HH:mm")}
       </Text>
     </Box>
   );
