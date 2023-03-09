@@ -58,7 +58,7 @@ const MedicalRecordHistory: React.FC<MedicalRecordHistoryProps> = ({ patientId }
             <Box h={"full"} w={"4px"} bg={"gray.400"} />
           </Flex>
           <Box className="bg-white shadow-md ring-1 ring-gray-900/10" w="full" h="full" m={"5px"}>
-            {JSON.parse(appointment.medicalRecord).map((record: any, index: number) => (
+            {JSON.parse(appointment.medicalRecord)?.map((record: any, index: number) => (
               <Flex key={index} direction={"column"}>
                 <Flex direction={"column"} gap={2} bg={"gray.200"} p={4}>
                   <Text fontSize={"1.2em"} fontWeight={"bold"}>{record.title}</Text>
