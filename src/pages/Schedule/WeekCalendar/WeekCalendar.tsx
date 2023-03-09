@@ -24,23 +24,10 @@ const WeekCalendar = () => {
   const data = makeData(day)
   const interval = { initDate: data[0][0].toISOString(), endDate: data[data.length - 1][6].toISOString() }
 
-  const { data: appointmentsRaw, isLoading } = useQuery<Pagination<Appointment>, Error>([APPOINTMENT_QUERY_KEY, { interval }],
+  const { data: appointments, isLoading } = useQuery<Pagination<Appointment>, Error>([APPOINTMENT_QUERY_KEY, { interval }],
     () => listAppointments(interval));
 
-  const appointments = appointmentsRaw?.items.map((appointment) => {
-    return {
-      ...appointment,
-      initDate: new Date(appointment.initDate),
-      endDate: new Date(appointment.endDate),
-      status: AppointmentStatusEnum[appointment.status as keyof typeof AppointmentStatusEnum],
-      patient: {
-        ...appointment.patient,
-        birthDate: new Date(appointment.patient.birthDate)
-      }
-    };
-  });
-
-  const columns = makeColumns(appointments ?? [], data[0]);
+  const columns = makeColumns(appointments?.items ?? [], data[0]);
 
   if (!data) return <Spinner />
   return (

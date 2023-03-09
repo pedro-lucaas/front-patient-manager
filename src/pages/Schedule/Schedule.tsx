@@ -3,8 +3,6 @@ import React from 'react';
 import { PatientsOfDay } from '../../components/PatientsOfDay';
 import { WeekCalendar } from './WeekCalendar';
 
-// import { Container } from './styles';
-
 const Schedule: React.FC = () => {
   const [isLargerThan820] = useMediaQuery("(min-width: 820px)");
   return <Flex w={"full"} gap="15px" flexDir={isLargerThan820 ? "row" : "column"} alignItems={"center"}>

@@ -140,12 +140,13 @@ const AppointmentForm = ({ values, onClose }: AppointmentFormProps) => {
           Valor
         </FormLabel>
         <Input name="price" type="text" id="price" as={NumericFormat} isAllowed={isAlloweded} prefix="R$ "
+          defaultValue={formik.values.price}
           decimalSeparator=','
           decimalScale={2}
           thousandSeparator="."
           onValueChange={(values: any) => {
             const { floatValue } = values;
-            formik.setFieldValue('priceFloat', floatValue)
+            formik.setFieldValue('price', floatValue)
           }} />
         <FormErrorMessage>{formik.errors.price}</FormErrorMessage>
       </FormControl>
